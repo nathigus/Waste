@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Waste Sorter — เว็บคัดแยกขยะ</title>
+  <meta name="description" content="เว็บแอปคัดแยกขยะ — ค้นหาชื่อขยะ หรืออัปโหลดรูป แล้วบอกว่าทิ้งถังไหน" />
+  <style>
+    :root{
+      --bg:#f6fbf6;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#16a34a;
+      --glass: rgba(255,255,255,0.6);
+      --radius:12px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#eaf5ea 0%, #f6fbf6 40%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:980px;
+      margin:12px;
+      background:var(--card);
+      border-radius:18px;
+      box-shadow: 0 8px 30px rgba(12,34,12,0.08);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:0;
+    }
+
+    header.appbar{
+      grid-column:1/-1;
+      padding:18px 24px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      border-bottom:1px solid #eef3ee;
+    }
+    .logo {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo .icon{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#059669);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;
+      box-shadow:0 4px 10px rgba(6,95,15,0.12);
+    }
+    header h1{font-size:18px;margin:0}
+    header p{margin:0;color:var(--muted);font-size:13px}
+
+    main.left{
+      padding:22px;
+    }
+
+    .search-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .search-row input[type="search"]{
+      flex:1;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #e6eee6;
+      font-size:15px;
+      outline:none;
+      background:linear-gradient(180deg,white, #fbfffb);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .search-row button{
+      padding:10px 14px;
+      background:var(--accent);
+      border:none;color:white;border-radius:10px;font-weight:600;cursor:pointer;
+    }
+
+    .suggestions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .chip{
+      background:#f1f8f1;border-radius:999px;padding:8px 12px;font-size:14px;color:#065f26;border:1px solid #e6f3e6;cursor:pointer;
+    }
+
+    .quick{
+      display:flex;
+      gap:10px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .quick button{
+      padding:12px 14px;border-radius:12px;border:1px solid #eef5ee;background:white;cursor:pointer;font-weight:600;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .file-input{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:linear-gradient(180deg,#ffffff,#f7fff7);
+      padding:10px;border-radius:12px;border:1px solid #eef6ee;
+      cursor:pointer;
+    }
+
+    .preview{
+      display:flex;
+      gap:12px;
+      margin-bottom:12px;
+      align-items:center;
+    }
+    .preview img{max-width:120px;border-radius:10px;border:1px solid #eef7ee}
+
+    .result-card{
+      background:linear-gradient(180deg,#ffffff,#f7fff7);
+      border-radius:12px;padding:14px;border:1px solid #ecf7ec;
+      display:flex;gap:12px;align-items:center;
+    }
+    .result-icon{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;color:white;font-weight:700}
+    .result-body h3{margin:0 0 6px 0}
+    .result-body p{margin:0;color:var(--muted)}
+
+    /* right column */
+    aside.right{
+      padding:20px;background:linear-gradient(180deg,#f8fff8,#ffffff);border-left:1px solid #eef6ee;
+    }
+    .history{
+      max-height:60vh;overflow:auto;padding-right:6px;
+    }
+    .hist-item{display:flex;align-items:center;gap:10px;border-bottom:1px dashed #eef6ee;padding:10px 0}
+    .small{font-size:13px;color:var(--muted)}
+
+    footer.notes{grid-column:1/-1;padding:12px 20px;background:linear-gradient(180deg,#fbfff9,#ffffff);border-top:1px solid #eef6ee;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+    .btn-clear{background:transparent;border:1px solid #ffd2d2;color:#b91c1c;padding:8px 10px;border-radius:8px;cursor:pointer}
+
+    /* responsive */
+    @media(max-width:880px){
+      .wrap{grid-template-columns:1fr; margin:12px}
+      aside.right{order:3}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header class="appbar">
+      <div class="logo">
+        <div class="icon">WS</div>
+        <div>
+          <h1>Waste Sorter</h1>
+          <p>เว็บแอปคัดแยกขยะ — ค้นหรือถ่ายรูปแล้วบอกว่าทิ้งถังไหน</p>
+        </div>
+      </div>
+      <div style="margin-left:auto;">
+        <small class="small">เวอร์ชัน: 1.0 • Offline-ready</small>
+      </div>
+    </header>
+
+    <main class="left">
+      <div class="search-row">
+        <input id="q" type="search" placeholder="ค้นหาชื่อขยะ (เช่น ขวดพลาสติก, paper)..." />
+        <button id="searchBtn">ค้นหา</button>
+      </div>
+
+      <div id="suggest" class="suggestions" aria-hidden="true"></div>
+
+      <div class="quick" aria-hidden="false">
+        <button data-name="ขวดพลาสติก">ขวดพลาสติก</button>
+        <button data-name="เศษอาหาร">เศษอาหาร</button>
+        <button data-name="ขวดแก้ว">ขวดแก้ว</button>
+        <button data-name="ถุงพลาสติก">ถุงพลาสติก</button>
+        <button data-name="แบตเตอรี่">แบตเตอรี่</button>
+      </div>
+
+      <div class="controls">
+        <label class="file-input">
+          <input id="file" type="file" accept="image/*" style="display:none" />
+          📸 อัปโหลดรูปเพื่อตรวจ (Beta)
+        </label>
+        <button id="resetBtn" class="file-input">♻️ รีเซ็ต</button>
+        <div style="margin-left:auto;color:var(--muted);font-size:13px">เก็บประวัติอัตโนมัติ</div>
+      </div>
+
+      <div id="preview" class="preview" style="display:none">
+        <img id="previewImg" src="" alt="preview" />
+        <div>
+          <div id="previewName" style="font-weight:700"></div>
+          <div class="small" id="previewHint"></div>
+        </div>
+      </div>
+
+      <div id="resultArea" style="margin-top:8px">
+        <div class="result-card" id="placeholder">
+          <div class="result-icon" style="background:#d1fae5;color:#065f46">♻️</div>
+          <div class="result-body">
+            <h3>ผลลัพธ์จะปรากฏที่นี่</h3>
+            <p>ค้นหาชื่อขยะ หรืออัปโหลดรูป แล้วระบบจะบอกว่าทิ้งถังไหน</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="right">
+      <h3 style="margin-top:0">ประวัติการค้นหา</h3>
+      <div class="history" id="history"></div>
+      <div style="margin-top:12px">
+        <button id="exportBtn" class="file-input">⬇️ ส่งออก CSV</button>
+        <button id="clearHist" class="file-input" style="margin-left:8px;background:#fff0f0;border:1px solid #ffdddd;color:#b91c1c">ล้างประวัติ</button>
+      </div>
+      <hr style="margin:12px 0;border:none;border-top:1px dashed #eef6ee" />
+      <h4 style="margin:0 0 8px 0">คำแนะนำเบื้องต้น</h4>
+      <ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px">
+        <li>ล้างง่าย ๆ ก่อนทิ้งขยะรีไซเคิล</li>
+        <li>แยกฝาและแยกวัสดุหลายชนิด</li>
+        <li>ขยะอันตรายให้ส่งที่จุดรับทิ้ง</li>
+      </ul>
+    </aside>
+
+    <footer class="notes">
+      <div>สร้างด้วย ❤️ — Waste Sorter</div>
+      <div><button id="about" class="btn-clear">เกี่ยวกับ</button></div>
+    </footer>
+  </div>
+
+  <script>
+  // --- ข้อมูลขยะ (สามารถขยายได้) ---
+  const WASTE_DB = [
+    {"name":"ขวดพลาสติก","name_en":"plastic bottle","category":"รีไซเคิล","advice":"♻️ ล้างคร่าว ๆ แยกฝา ทิ้งถังรีไซเคิล (สีเหลือง)"},
+    {"name":"กล่องนม","name_en":"tetra pak","category":"รีไซเคิล","advice":"♻️ ล้างแล้วรวมขายหรือทิ้งที่จุดรีไซเคิล"},
+    {"name":"กระดาษ","name_en":"paper","category":"รีไซเคิล","advice":"♻️ รวบรวมให้แห้ง ทิ้งถังรีไซเคิล"},
+    {"name":"เศษอาหาร","name_en":"food waste","category":"ขยะเปียก","advice":"🍂 ทิ้งถังขยะเปียกหรือทำปุ๋ยหมัก"},
+    {"name":"ผ้าเก่า","name_en":"old clothes","category":"รียูส/บริจาค","advice":"🫶 บริจาคได้หากสภาพดี"},
+    {"name":"หลอดไฟแตก","name_en":"broken bulb","category":"อันตราย","advice":"☠️ ใส่กล่องปิดมิดชิดและไปทิ้งจุดรับทิ้งอันตราย"},
+    {"name":"แบตเตอรี่","name_en":"battery","category":"อันตราย","advice":"☠️ เก็บแยก ส่งคืนที่จุดรับหรือร้านอุปกรณ์อิเล็กทรอนิกส์"},
+    {"name":"ถุงพลาสติก","name_en":"plastic bag","category":"ทั่วไป","advice":"🔥 ถุงบางชนิดรีไซเคิลได้ที่จุดรับ แต่ส่วนใหญ่ทิ้งถังทั่วไป"},
+    {"name":"ขวดแก้ว","name_en":"glass bottle","category":"รีไซเคิล","advice":"♻️ ล้าง ทิ้งถังรีไซเคิล แยกฝา"},
+    {"name":"ซองปรุงรส","name_en":"seasoning sachet","category":"ทั่วไป","advice":"🔥 ทิ้งถังทั่วไป เนื่องจากยากต่อการรีไซเคิล"}
+  ];
+
+  // --- helpers ---
+  function findWasteByQuery(q) {
+    if(!q) return null;
+    q = q.trim().toLowerCase();
+    // exact name match first
+    for(const it of WASTE_DB){
+      if(it.name === q || it.name_en === q) return it;
+    }
+    // contains
+    for(const it of WASTE_DB){
+      if(it.name.toLowerCase().includes(q) || it.name_en.toLowerCase().includes(q)) return it;
+    }
+    return null;
+  }
+
+  function renderResult(item, source = 'ค้นหา') {
+    const area = document.getElementById('resultArea');
+    area.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    const colorMap = {
+      'รีไซเคิล':'#10b981',
+      'ขยะเปียก':'#a16207',
+      'ทั่วไป':'#374151',
+      'อันตราย':'#ef4444',
+      'รียูส/บริจาค':'#0891b2'
+    };
+    const bg = colorMap[item.category] || '#6b7280';
+    const iconText = {
+      'รีไซเคิล':'♻️',
+      'ขยะเปียก':'🍂',
+      'ทั่วไป':'🗑️',
+      'อันตราย':'⚠️',
+      'รียูส/บริจาค':'🤝'
+    }[item.category] || '📦';
+
+    card.innerHTML = `
+      <div class="result-icon" style="background:${lighten(bg,0.12)};color:white">${iconText}</div>
+      <div class="result-body">
+        <h3>${escapeHtml(item.name)} <small style="font-weight:600;margin-left:8px;color:${bg};padding:4px 8px;border-radius:8px;border:1px solid ${hexToRgba(bg,0.12)}">${item.category}</small></h3>
+        <p>${escapeHtml(item.advice)}</p>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="saveBtn" style="padding:8px 12px;border-radius:10px;border:none;background:${bg};color:white;cursor:pointer">บันทึกลงประวัติ</button>
+          <button id="shareBtn" style="padding:8px 12px;border-radius:10px;border:1px solid ${hexToRgba(bg,0.12)};background:transparent;cursor:pointer">แชร์</button>
+        </div>
+      </div>
+    `;
+    area.appendChild(card);
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      saveHistory(item, source);
+      renderHistory();
+      toast('บันทึกแล้ว');
+    });
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      const txt = `${item.name} → ${item.category}\n${item.advice}`;
+      if(navigator.share){
+        try { await navigator.share({title:'Waste Sorter', text:txt}); }
+        catch(e){ console.log(e); alert('แชร์ไม่สำเร็จ'); }
+      } else {
+        copyToClipboard(txt);
+        toast('คัดลอกข้อความแล้ว');
+      }
+    });
+  }
+
+  // --- UI wiring ---
+  const qInput = document.getElementById('q');
+  const searchBtn = document.getElementById('searchBtn');
+  const suggestEl = document.getElementById('suggest');
+
+  function updateSuggestions() {
+    const q = qInput.value.trim().toLowerCase();
+    suggestEl.innerHTML = '';
+    if(!q) { suggestEl.style.display='none'; return; }
+    const list = WASTE_DB.filter(it => it.name.toLowerCase().includes(q) || it.name_en.toLowerCase().includes(q)).slice(0,8);
+    list.forEach(it => {
+      const el = document.createElement('button');
+      el.className = 'chip';
+      el.textContent = it.name;
+      el.addEventListener('click', ()=> {
+        qInput.value = it.name;
+        doSearch(it.name);
+      });
+      suggestEl.appendChild(el);
+    });
+    suggestEl.style.display = list.length ? 'flex' : 'none';
+  }
+
+  qInput.addEventListener('input', updateSuggestions);
+  searchBtn.addEventListener('click', ()=> doSearch(qInput.value));
+  qInput.addEventListener('keypress', (e)=> { if(e.key==='Enter') doSearch(qInput.value); });
+
+  // quick buttons
+  document.querySelectorAll('.quick button').forEach(b=>{
+    b.addEventListener('click', ()=> {
+      const n = b.getAttribute('data-name');
+      qInput.value = n; updateSuggestions();
+      doSearch(n);
+    });
+  });
+
+  // file upload preview + simple detection (filename keyword)
+  const fileInput = document.getElementById('file');
+  const preview = document.getElementById('preview');
+  const previewImg = document.getElementById('previewImg');
+  const previewName = document.getElementById('previewName');
+  const previewHint = document.getElementById('previewHint');
+
+  fileInput.addEventListener('change', async (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if(!f) return;
+    const url = URL.createObjectURL(f);
+    previewImg.src = url;
+    preview.style.display = 'flex';
+    previewName.textContent = f.name;
+    previewHint.textContent = 'กำลังวิเคราะห์รูป (heuristic)...';
+    // simple detection by filename keywords
+    const lowered = f.name.toLowerCase();
+    let found = null;
+    for(const it of WASTE_DB){
+      if(lowered.includes(it.name.toLowerCase()) || lowered.includes(it.name_en)) { found = it; break; }
+    }
+    // fallback by reading image alt(exif?) not available: use color heuristic? we skip heavy ML here
+    setTimeout(()=> {
+      if(found) {
+        previewHint.textContent = `คาดว่าเป็น: ${found.name} — พบคำที่ตรงกันในชื่อไฟล์`;
+        renderResult(found, 'รูปภาพ (filename)');
+        saveHistory(found,'รูปภาพ (filename)');
+        renderHistory();
+      } else {
+        previewHint.textContent = 'ไม่สามารถระบุอัตโนมัติ ลองพิมพ์ค้นหาหรือเลือกปุ่มด้านบน';
+        toast('ไม่พบการแมปอัตโนมัติ — ให้ลองค้นหาชื่อหรือเลือกปุ่ม');
+      }
+    }, 600);
+  });
+
+  // reset
+  document.getElementById('resetBtn').addEventListener('click', ()=> {
+    qInput.value=''; preview.style.display='none'; document.getElementById('resultArea').innerHTML = document.getElementById('placeholder').outerHTML;
+  });
+
+  // basic search flow
+  function doSearch(q) {
+    if(!q || !q.trim()) { alert('กรุณาพิมพ์คำค้น'); return; }
+    const item = findWasteByQuery(q);
+    if(item) {
+      renderResult(item, 'ค้นหา');
+      saveHistory(item, 'ค้นหา');
+      renderHistory();
+    } else {
+      // show friendly fallback
+      renderNotFound(q);
+    }
+  }
+
+  function renderNotFound(q) {
+    const area = document.getElementById('resultArea');
+    area.innerHTML = '';
+    const card = document.createElement('div'); card.className='result-card';
+    card.innerHTML = `
+      <div class="result-icon" style="background:#fde68a;color:#92400e">❓</div>
+      <div class="result-body">
+        <h3>ไม่พบคำว่า "${escapeHtml(q)}"</h3>
+        <p>ลองพิมพ์คำอื่น หรือเลือกปุ่มตัวอย่างด้านบน ถ้าคุณต้องการเพิ่มรายการใหม่ โปรดติดต่อผู้พัฒนา</p>
+        <div style="margin-top:10px">
+          <button id="addBtn" style="padding:8px 12px;border-radius:10px;border:none;background:#f59e0b;color:white;cursor:pointer">ขอเพิ่มรายการ</button>
+        </div>
+      </div>`;
+    area.appendChild(card);
+    document.getElementById('addBtn').addEventListener('click', ()=> {
+      promptAddItem(q);
+    });
+  }
+
+  // add item (local only)
+  function promptAddItem(q) {
+    const name = prompt('ชื่อขยะ (ไทย):', q) || q;
+    const nameEn = prompt('ชื่อ (อังกฤษ) ถ้ามี:', '') || '';
+    const category = prompt('ประเภท (รีไซเคิล / ขยะเปียก / ทั่วไป / อันตราย / รียูส/บริจาค):', 'ทั่วไป') || 'ทั่วไป';
+    const advice = prompt('คำแนะนำสั้นๆ:', '') || '';
+    const newItem = {name, name_en: nameEn, category, advice};
+    WASTE_DB.unshift(newItem);
+    toast('เพิ่มรายการใหม่ในหน่วยความจำของเบราว์เซอร์แล้ว (เฉพาะเครื่องนี้)');
+    renderSuggestSample();
+  }
+
+  // history (localStorage)
+  function saveHistory(item, source='ค้นหา') {
+    try {
+      const key = 'ws_history_v1';
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) : [];
+      arr.unshift({ts: Date.now(), name: item.name, category: item.category, source});
+      localStorage.setItem(key, JSON.stringify(arr.slice(0,50)));
+    } catch(e){ console.error(e); }
+  }
+  function renderHistory(){
+    const key = 'ws_history_v1';
+    const raw = localStorage.getItem(key);
+    const arr = raw ? JSON.parse(raw) : [];
+    const el = document.getElementById('history');
+    el.innerHTML = '';
+    if(arr.length===0){ el.innerHTML = '<div class="small">ยังไม่มีประวัติการค้นหา</div>'; return; }
+    arr.forEach(r=>{
+      const d = new Date(r.ts);
+      const node = document.createElement('div');
+      node.className = 'hist-item';
+      node.innerHTML = `<div style="width:44px;height:44px;border-radius:8px;background:${pickColor(r.category)};display:flex;align-items:center;justify-content:center;color:white;font-weight:700">${abbr(r.category)}</div>
+      <div style="flex:1">
+        <div style="font-weight:700">${escapeHtml(r.name)} <small style="color:var(--muted);font-weight:600">• ${escapeHtml(r.category)}</small></div>
+        <div class="small">${d.toLocaleString()} • ${escapeHtml(r.source)}</div>
+      </div>
+      <div style="margin-left:8px"><button style="border:none;background:transparent;color:#0ea5a2;cursor:pointer" data-name="${escapeHtml(r.name)}">ค้นอีกครั้ง</button></div>`;
+      el.appendChild(node);
+      node.querySelector('button').addEventListener('click', ()=> {
+        doSearch(r.name);
+      });
+    });
+  }
+
+  document.getElementById('clearHist').addEventListener('click', ()=> {
+    if(confirm('ล้างประวัติการค้นหา?')) {
+      localStorage.removeItem('ws_history_v1');
+      renderHistory();
+    }
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', ()=> {
+    const raw = localStorage.getItem('ws_history_v1');
+    const arr = raw ? JSON.parse(raw) : [];
+    if(arr.length===0){ alert('ไม่มีข้อมูลให้ส่งออก'); return; }
+    const csv = ['timestamp,name,category,source'].concat(arr.map(r=> `${r.ts},"${r.name.replace(/"/g,'""')}",${r.category},${r.source}`)).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='waste_history.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // About
+  document.getElementById('about').addEventListener('click', ()=> {
+    alert('Waste Sorter — เว็บคัดแยกขยะ (ตัวอย่าง)\nพัฒนาโดย: คุณ\nเวอร์ชัน: 1.0\n\nสามารถใช้บนมือถือ, แท็บเล็ต และพีซี\nข้อมูลทั้งหมดเก็บในเครื่อง (localStorage)');
+  });
+
+  // util functions
+  function toast(msg,timeout=2000){
+    const t = document.createElement('div'); t.textContent = msg;
+    Object.assign(t.style,{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'28px',background:'#111',color:'#fff',padding:'10px 14px',borderRadius:'10px',opacity:'0',transition:'opacity .18s'});
+    document.body.appendChild(t);
+    requestAnimationFrame(()=>t.style.opacity='1');
+    setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),220); },timeout);
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function hexToRgba(hex,alpha=1){
+    const h=hex.replace('#','');
+    const r=parseInt(h.substring(0,2),16), g=parseInt(h.substring(2,4),16), b=parseInt(h.substring(4,6),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  function lighten(hex, amt=0.1){
+    const h=hex.replace('#','');
+    const r=Math.min(255, Math.floor(parseInt(h.substring(0,2),16) + 255*amt));
+    const g=Math.min(255, Math.floor(parseInt(h.substring(2,4),16) + 255*amt));
+    const b=Math.min(255, Math.floor(parseInt(h.substring(4,6),16) + 255*amt));
+    return `rgb(${r},${g},${b})`;
+  }
+  function pickColor(cat){
+    return ({'รีไซเคิล':'#10b981','ขยะเปียก':'#a16207','ทั่วไป':'#6b7280','อันตราย':'#ef4444','รียูส/บริจาค':'#0891b2'}[cat]||'#6b7280');
+  }
+  function abbr(cat){
+    return ({'รีไซเคิล':'R','ขยะเปียก':'P','ทั่วไป':'G','อันตราย':'!','รียูส/บริจาค':'D'}[cat]||'?');
+  }
+  function copyToClipboard(text){
+    if(navigator.clipboard) return navigator.clipboard.writeText(text);
+    const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+
+  // initial render
+  renderSuggestSample();
+  renderHistory();
+
+  function renderSuggestSample(){
+    // prepopulate suggestion row with popular items
+    const quickRow = document.querySelector('.suggestions');
+    // leave if user is using search
+  }
+
+  // small UX: allow clicking history items to re-search added above
+  // load placeholder (already there)
+  </script>
+</body>
+</html>
