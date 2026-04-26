@@ -3,221 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counting Down for You ♡</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;400;600&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <title>Our Story ♡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;400;600&family=Mali:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --soft-pink: #ffc2d1;
             --deep-pink: #fb6f92;
-            --white-glass: rgba(255, 255, 255, 0.25);
+            --paper-color: #fff9f0;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0; padding: 0; min-height: 100vh;
             background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%);
             font-family: 'Kanit', sans-serif;
             overflow: hidden;
-            color: #4a4a4a;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* พื้นหลังมีลูกเล่นหัวใจลอย */
-        .bg-elements {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
+        /* --- ส่วนจัดการการแสดงผล --- */
+        .page-section {
+            display: none; width: 100%; height: 100vh;
+            justify-content: center; align-items: center;
+            animation: fadeIn 0.8s ease;
         }
+        .active { display: flex; flex-direction: column; }
 
-        .floating {
-            position: absolute;
-            animation: move 10s linear infinite;
-            opacity: 0.5;
-            color: white;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        @keyframes move {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* Container หลัก */
+        /* --- หน้า Countdown (Scene 1) --- */
         .container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 500px;
+            width: 90%; max-width: 450px;
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            border-radius: 40px; padding: 40px 20px;
+            text-align: center; border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .countdown-wrapper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+        .time-box { background: white; padding: 10px; border-radius: 15px; }
+        .number { display: block; font-size: 1.5rem; font-weight: 600; color: var(--deep-pink); }
+        .label { font-size: 0.6rem; color: #aaa; }
+        
+        .btn-open {
+            background: var(--deep-pink); color: white; border: none;
+            padding: 12px 30px; border-radius: 50px; cursor: pointer;
+            font-size: 1rem; transition: 0.3s; margin-top: 20px;
+            font-family: 'Kanit', sans-serif;
         }
 
-        .profile-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid white;
-            object-fit: cover;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        /* --- หน้าสมุดเลื่อนได้ (Scene 2) --- */
+        .book-container {
+            width: 100%; max-width: 400px; height: 600px;
+            position: relative;
+        }
+        .book-wrapper {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            width: 100%; height: 100%; border-radius: 20px;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        .book-wrapper::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
+
+        .book-page {
+            flex: 0 0 100%; scroll-snap-align: start;
+            background: var(--paper-color);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 40px 30px; box-sizing: border-box;
+            position: relative; border: 8px solid #fff;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.05);
         }
 
-        h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            color: var(--deep-pink);
-        }
+        /* ตกแต่งด้านในสมุด */
+        .book-page h2 { font-family: 'Mali', cursive; color: var(--deep-pink); }
+        .book-page p { font-family: 'Mali', cursive; line-height: 1.8; color: #666; text-align: center; }
+        .book-img { width: 100%; height: 200px; background: #ddd; border-radius: 10px; margin: 15px 0; object-fit: cover; }
+        .page-num { position: absolute; bottom: 20px; font-size: 0.8rem; color: #ccc; }
 
-        .sub-text {
-            font-weight: 200;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
-
-        /* ระบบ Countdown หลายช่อง */
-        .countdown-wrapper {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .time-box {
-            background: white;
-            padding: 15px 5px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-            transition: transform 0.3s ease;
-        }
-
-        .time-box:hover {
-            transform: translateY(-5px);
-        }
-
-        .number {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--deep-pink);
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: #aaa;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .footer-tag {
-            margin-top: 40px;
-            font-size: 0.75rem;
-            opacity: 0.6;
-        }
+        .hint { color: white; font-size: 0.8rem; margin-top: 15px; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <div class="bg-elements" id="bg-elements"></div>
+    <div id="scene-countdown" class="page-section active">
+        <div class="container">
+            <h1 style="color: var(--deep-pink);">Waiting for You</h1>
+            <div class="countdown-wrapper">
+                <div class="time-box"><span class="number" id="days">00</span><span class="label">Days</span></div>
+                <div class="time-box"><span class="number" id="hours">00</span><span class="label">Hours</span></div>
+                <div class="time-box"><span class="number" id="minutes">00</span><span class="label">Mins</span></div>
+                <div class="time-box"><span class="number" id="seconds">00</span><span class="label">Secs</span></div>
+            </div>
+            <button class="btn-open" onclick="openBook()">Open Our Book 📖</button>
+        </div>
+    </div>
 
-    <div class="container">
-        <img src="https://via.placeholder.com/150" alt="Special Someone" class="profile-img">
-        
-        <h1 id="headline">WAITING FOR...</h1>
-        <p class="sub-text">นับถอยหลังสู่คนพิเศษของ natthika</p>
-
-        <div class="countdown-wrapper">
-            <div class="time-box">
-                <span class="number" id="days">00</span>
-                <span class="label">Days</span>
-            </div>
-            <div class="time-box">
-                <span class="number" id="hours">00</span>
-                <span class="label">Hours</span>
-            </div>
-            <div class="time-box">
-                <span class="number" id="minutes">00</span>
-                <span class="label">Mins</span>
-            </div>
-            <div class="time-box">
-                <span class="number" id="seconds">00</span>
-                <span class="label">Secs</span>
+    <div id="scene-book" class="page-section">
+        <div class="book-container">
+            <div class="book-wrapper">
+                <div class="book-page">
+                    <h2>First of all..</h2>
+                    <img src="https://via.placeholder.com/300x200" class="book-img">
+                    <p>ขอบคุณนะที่อยู่ข้างกันมาตลอด เว็บนี้ตั้งใจทำความทรงจำของเรามาเก็บไว้ที่นี่นะ</p>
+                    <span class="page-num">1 / 5</span>
+                </div>
+                <div class="book-page">
+                    <h2>Happy Moments</h2>
+                    <img src="https://via.placeholder.com/300x200" class="book-img">
+                    <p>จำวันแรกที่เราเจอกันได้ป่าว? <br>ตอนนั้นตื่นเต้นสุดๆ เลยล่ะ</p>
+                    <span class="page-num">2 / 5</span>
+                </div>
+                <div class="book-page">
+                    <h2>Favorite Day</h2>
+                    <img src="https://via.placeholder.com/300x200" class="book-img">
+                    <p>ไม่ว่าวันไหนๆ ถ้ามีแกอยู่ด้วย <br>มันก็เป็นวันที่ดีที่สุดสำหรับเราแล้ว</p>
+                    <span class="page-num">3 / 5</span>
+                </div>
+                <div class="book-page">
+                    <h2>Stay Together</h2>
+                    <img src="https://via.placeholder.com/300x200" class="book-img">
+                    <p>ปีนี้ขอให้มีความสุขมากๆ นะ <br>จะคอยเป็นกำลังใจให้ในทุกๆ เรื่องเลย</p>
+                    <span class="page-num">4 / 5</span>
+                </div>
+                <div class="book-page">
+                    <h2>Last but not least</h2>
+                    <div style="font-size: 50px; margin: 20px 0;">🎂🤍</div>
+                    <p>Happy Birthday นะคะคนดี <br>รักแกที่สุดในโลกเลย!</p>
+                    <p style="font-size: 0.8rem; color: var(--deep-pink);">— จาก natthika —</p>
+                    <span class="page-num">5 / 5</span>
+                </div>
             </div>
         </div>
-
-        <p class="footer-tag">♡ see you on your special day ♡</p>
+        <p class="hint">← ปัดซ้ายเพื่อเปิดหน้าถัดไป →</p>
+        <button class="btn-open" style="background: white; color: var(--deep-pink); margin-top: 10px;" onclick="location.reload()">Back to Countdown</button>
     </div>
 
     <script>
-        // --- ตั้งค่าวันเกิดตรงนี้ (ปี-เดือน-วัน) ---
-        const targetDate = new Date("2026-04-26T00:00:00").getTime();
-
-        function updateCountdown() {
+        // --- Countdown Logic ---
+        const targetDate = new Date("2026-06-12T00:00:00").getTime();
+        setInterval(() => {
             const now = new Date().getTime();
             const gap = targetDate - now;
+            const second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24;
+            
+            document.getElementById("days").innerText = Math.floor(gap / day);
+            document.getElementById("hours").innerText = Math.floor((gap % day) / hour);
+            document.getElementById("minutes").innerText = Math.floor((gap % hour) / minute);
+            document.getElementById("seconds").innerText = Math.floor((gap % minute) / second);
+        }, 1000);
 
-            // การคำนวณเวลา
-            const second = 1000;
-            const minute = second * 60;
-            const hour = minute * 60;
-            const day = hour * 24;
-
-            const d = Math.floor(gap / day);
-            const h = Math.floor((gap % day) / hour);
-            const m = Math.floor((gap % hour) / minute);
-            const s = Math.floor((gap % minute) / second);
-
-            // แสดงผล
-            document.getElementById("days").innerText = d < 10 ? "0"+d : d;
-            document.getElementById("hours").innerText = h < 10 ? "0"+h : h;
-            document.getElementById("minutes").innerText = m < 10 ? "0"+m : m;
-            document.getElementById("seconds").innerText = s < 10 ? "0"+s : s;
-
-            // เมื่อถึงวันเกิด
-            if (gap <= 0) {
-                document.getElementById("headline").innerText = "HAPPY BIRTHDAY KUB BABY พี่ขอให้เธอมีความสุขมากมากยิ้มเยอะเยอะเจอแต่คนดีดีนะ 🎂";
-                document.getElementById("days").innerText = "H";
-                document.getElementById("hours").innerText = "B";
-                document.getElementById("minutes").innerText = "D";
-                document.getElementById("seconds").innerText = "♡";
-                clearInterval(timer);
-            }
+        // --- Scene Switching ---
+        function openBook() {
+            document.getElementById('scene-countdown').classList.remove('active');
+            document.getElementById('scene-book').classList.add('active');
         }
-
-        const timer = setInterval(updateCountdown, 1000);
-        updateCountdown();
-
-        // สร้างหัวใจลอยแบบสุ่ม
-        const bg = document.getElementById('bg-elements');
-        const icons = ['❤', '☁', '✨', '🌸'];
-        
-        function createFloating() {
-            const el = document.createElement('div');
-            el.className = 'floating';
-            el.innerText = icons[Math.floor(Math.random() * icons.length)];
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.fontSize = (Math.random() * 20 + 10) + 'px';
-            el.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            bg.appendChild(el);
-
-            setTimeout(() => { el.remove(); }, 10000);
-        }
-
-        setInterval(createFloating, 500);
     </script>
 </body>
 </html>
