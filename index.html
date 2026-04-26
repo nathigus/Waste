@@ -6,6 +6,37 @@
     <title>Baby bd ♡</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;400;600&family=Mali:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* --- อนิเมชั่นหัวใจลอย --- */
+.heart {
+    position: absolute;
+    background-color: var(--deep-pink); /* ใช้สีชมพูเข้มจาก root พี่ */
+    height: 15px;
+    width: 15px;
+    transform: rotate(-45deg);
+    opacity: 0.5;
+    animation: floatUp 6s infinite linear;
+    bottom: -50px;
+    z-index: 1; /* ให้ลอยอยู่หลัง Container */
+}
+
+.heart::before, .heart::after {
+    content: "";
+    background-color: inherit;
+    border-radius: 50%;
+    height: 15px;
+    width: 15px;
+    position: absolute;
+}
+
+.heart::before { top: -8px; left: 0; }
+.heart::after { left: 8px; top: 0; }
+
+@keyframes floatUp {
+    0% { transform: rotate(-45deg) translateY(0); opacity: 0; }
+    20% { opacity: 0.6; }
+    100% { transform: rotate(-45deg) translateY(-110vh) translateX(30px); opacity: 0; }
+}
+
         :root {
             --soft-pink: #ffc2d1;
             --deep-pink: #fb6f92;
@@ -84,7 +115,7 @@
 
     <div id="scene-countdown" class="page-section active">
         <div class="container">
-            <h1 style="color: var(--deep-pink);">Waiting for You</h1>
+            <h1 style="color: var(--deep-pink);">BD N'un</h1>
             <div class="countdown-wrapper">
                 <div class="time-box"><span class="number" id="days">00</span><span class="label">Days</span></div>
                 <div class="time-box"><span class="number" id="hours">00</span><span class="label">Hours</span></div>
@@ -99,19 +130,19 @@
         <div class="book-container">
             <div class="book-wrapper">
                 <div class="book-page">
-                    <h2>First of all..</h2>
+                    <h2>BD N'un</h2>
                     <img src="https://www.image2url.com/r2/default/images/1777207560114-ec438a6d-002a-4f91-9b28-870e5e6a7a73.jpeg" class="book-img">
                     <p>พี่ขอบคุณที่เธอให้พี่จีบเธอ ถ้าเธอปฏิเสธคงหงอยแน่แน่ </p>
                     <span class="page-num">1 / 5</span>
                 </div>
                 <div class="book-page">
-                    <h2>Happy Moments</h2>
+                    <h2>BD N'un</h2>
                     <img src="https://www.image2url.com/r2/default/images/1777207761294-5bbd9c5e-f1dc-49fd-8e53-19cb6d477b3e.jpeg" class="book-img">
                     <p>พี่ชอบเธอก็เพราะเธอซุ่มซ่ามมั้งวันนั้นเธอทำไอติมหล่น <br>ใส่เท้าพี่หน่ะ</p>
                     <span class="page-num">2 / 5</span>
                 </div>
                 <div class="book-page">
-                    <h2>Favorite Day</h2>
+                    <h2>BD N'un</h2>
                     <img src="https://www.image2url.com/r2/default/images/1777207850990-507eb27a-02c6-4349-b70a-d91eb22b99c6.jpeg" class="book-img">
                     <p>ไม่ว่าวันไหนๆถ้ามีเธออยู่ด้วยคงดีมากๆ <br>พี่ว่าพี่พร้อมแลัวเธอพร้อมรึยังคับ</p>
                     <span class="page-num">3 / 5</span>
@@ -125,19 +156,19 @@
                 <div class="book-page">
                     <h2>Last but not least</h2>
                     <div style="font-size: 50px; margin: 20px 0;">🎂🤍</div>
-                    <p>เป็นแฟนกับพี่มั้ยคะ<br>พี่อยากมีแฟนชื่อ อันแล้ว </p>
+                    <p>เป็นแฟนกับพี่มั้ยคะ<br>do you want to be my girlfriend  </p>
                     <p style="font-size: 0.8rem; color: var(--deep-pink);">— จาก natthika —</p>
                     <span class="page-num">5 / 5</span>
                 </div>
             </div>
         </div>
-        <p class="hint">← ปัดซ้ายเพื่อโทรหาพี่รอคำตอบคับ :p →</p>
+        <p class="hint">← รอคำตอบคับ :p →</p>
         <button class="btn-open" style="background: white; color: var(--deep-pink); margin-top: 10px;" onclick="location.reload()">Back to Countdown</button>
     </div>
 
     <script>
         // --- Countdown Logic ---
-        const targetDate = new Date("2026-06-12T00:00:00").getTime();
+        const targetDate = new Date("2026-05-6T00:00:00").getTime();
         setInterval(() => {
             const now = new Date().getTime();
             const gap = targetDate - now;
