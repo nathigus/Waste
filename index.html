@@ -7,37 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;400;600&family=Mali:wght@400;600&display=swap" rel="stylesheet">
     <style>
       
-        /* --- อนิเมชั่นหัวใจลอย --- */
-.heart {
-    position: absolute;
-    background-color: var(--deep-pink); /* ใช้สีชมพูเข้มจาก root พี่ */
-    height: 15px;
-    width: 15px;
-    transform: rotate(-45deg);
-    opacity: 0.5;
-    animation: floatUp 6s infinite linear;
-    bottom: -50px;
-    z-index: 1; /* ให้ลอยอยู่หลัง Container */
-}
-
-.heart::before, .heart::after {
-    content: "";
-    background-color: inherit;
-    border-radius: 50%;
-    height: 15px;
-    width: 15px;
-    position: absolute;
-}
-
-.heart::before { top: -8px; left: 0; }
-.heart::after { left: 8px; top: 0; }
-
-@keyframes floatUp {
-    0% { transform: rotate(-45deg) translateY(0); opacity: 0; }
-    20% { opacity: 0.6; }
-    100% { transform: rotate(-45deg) translateY(-110vh) translateX(30px); opacity: 0; }
-}
-
         :root {
             --soft-pink: #ffc2d1;
             --deep-pink: #fb6f92;
@@ -51,6 +20,22 @@
             overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
+/* สไตล์สำหรับสติ๊กเกอร์ลอย */
+.floating-sticker {
+    position: fixed;   /* ลอยค้างหน้าจอ ไม่สน flex ของ body */
+    bottom: 20px;      /* ห่างจากขอบล่าง */
+    right: 20px;       /* ห่างจากขอบขวา */
+    width: 100px;      /* ขนาดสติ๊กเกอร์ ปรับได้ตามใจพี่ */
+    z-index: 9999;     /* อยู่บนสุดเสมอ */
+    pointer-events: auto; /* ให้กดสติ๊กเกอร์ได้ */
+    animation: bounce 2s infinite; /* แถม: ใส่เอฟเฟกต์เด้งๆ */
+}
+
+/* เอฟเฟกต์เด้งดึ๋งให้น่ารักๆ */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
 
         /* --- ส่วนจัดการการแสดงผล --- */
         .page-section {
